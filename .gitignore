@@ -1,3 +1,14 @@
+# DATA
+data/
+*.parquet
+*.csv
+
+# tmp
+tmp/
+
+# Notebooks
+*.ipynb
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
