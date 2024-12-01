@@ -1,43 +1,8 @@
-from plotly import express as px
 import polars as pl
 from sklearn import preprocessing
 import numpy as np
-import scipy.sparse as sp
 
 from typing import Literal
-
-
-def plot_feature_pair(x_data, y_data, x=0, y=1, discrete=True):
-    if discrete:
-        labels = y_data.astype(str)
-    else:
-        labels = y_data
-
-    fig = (
-        px.scatter(
-            x_data,
-            x=x,
-            y=y,
-            color=labels,
-            title="Feature space",
-            width=500,
-            height=400,
-        )
-        .update_traces(marker=dict(size=3))
-        .update_layout(margin=dict(t=80, l=10, b=10, r=10))
-    )
-    return fig
-
-
-class ScoreUtil:
-    """A utility class for interpreting model performance."""
-
-    # TODO
-    def __init__(self) -> None:
-        pass
-
-    """IDEA: track performance for grid search.
-    save all parameter combinations """
 
 
 class DataSet:
@@ -71,6 +36,7 @@ class DataSet:
         print("\nDataset log:\n- " + "\n- ".join(self._log))
 
     def describe_features(self):
+        """Print numeric features with ranges, and categoric features with value counts."""
         schema = self.df.schema
 
         print("\nNumeric Features:")
