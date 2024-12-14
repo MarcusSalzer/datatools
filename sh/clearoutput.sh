@@ -1,10 +1,12 @@
 #!/bin/bash
 
-# Find all Jupyter notebooks in the current dir
-notebooks=$(ls -R | grep '\.ipynb$')
+# Find all Jupyter notebooks in the repository
+notebooks=$(ls -R| grep '\.ipynb$')
+
+# TODO fix?
 
 # Loop over each notebook and clear its output
 for notebook in $notebooks; do
-    echo "Clearing output from scripts/$notebook"
-    jupyter nbconvert --clear-output --inplace "scripts/$notebook"
+    echo "Clearing output from $notebook"
+    jupyter nbconvert --clear-output --inplace "$notebook"
 done
