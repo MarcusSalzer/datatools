@@ -3,6 +3,7 @@ from setuptools import setup, find_packages
 setup(
     name="datatools",
     version="0.1",
+    description="some tools",
     author="marcu",
     packages=find_packages(),
     install_requires=[
@@ -12,7 +13,6 @@ setup(
         "regex",
     ],
     scripts=[
-        "sh/hello.sh",
         "sh/clearoutput.sh",
     ],
 )

@@ -4,13 +4,17 @@ from timeit import default_timer
 
 
 class SequentialTimer:
+    """Measure runtime for each segment of a script."""
+
     def __init__(self):
         self.tt = [("init", default_timer())]
 
-    def add(self, k: str):
-        self.tt.append((k, default_timer()))
+    def add(self, name: str):
+        """Insert a timestamp."""
+        self.tt.append((name, default_timer()))
 
     def get_diffs(self):
+        """Compute runtime for each segment"""
         return [(k, t - tp) for (k, t), (_, tp) in zip(self.tt[1:], self.tt)]
 
     def __str__(self):

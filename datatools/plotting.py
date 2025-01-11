@@ -1,12 +1,21 @@
 import numpy as np
+import polars as pl
 from plotly import graph_objects as go
 from plotly import io as pio
+from plotly import subplots
 
 
-def set_plotly_template(auto_size=False, w=600, h=300, transparent_background=True):
+def set_plotly_template(
+    base_template="plotly_dark",
+    auto_size=False,
+    w: int = 600,
+    h: int = 300,
+    transparent_background=True,
+    margin=40,
+):
     """Some kind of plot template"""
-    plot_temp = pio.templates["plotly_dark"]
-    plot_temp.layout.margin = dict(t=0, l=0, r=0, b=0)
+    plot_temp = pio.templates[base_template]
+    plot_temp.layout.margin = dict.fromkeys(["t", "l", "r", "b"], margin)
 
     if not auto_size:
         plot_temp.layout.width = w
@@ -37,8 +46,14 @@ def heatmap(
     size=400,
 ):
     """Plot a matrix as a heatmap, optionally in log-scale to compress range."""
+
+    title = "Heatmap"
     if log_scale:
         z = np.log(X + pseudo_count)
+        if pseudo_count != 0:
+            title += f": log(count + {pseudo_count})"
+        else:
+            title += ": log(count)"
     else:
         z = X
 
@@ -66,5 +81,52 @@ def heatmap(
             yaxis=dict(title="true", scaleanchor="x", type="category", dtick=1),
             width=size + 80,
             height=size,
+            title=title,
         ),
     )
+
+
+def corr_grid_all_to_one(df: pl.DataFrame, target: str, trendline=False):
+    """correlation plots, for each feature against target"""
+
+    y = df[target]
+    x_df = df.drop(target)
+
+    n_plots = len(x_df.columns)
+    fig = subplots.make_subplots(n_plots // 4 + 1, 4, subplot_titles=x_df.columns)
+    for i in range(n_plots):
+        ro = i // 4 + 1
+        co = i % 4 + 1
+        k = x_df.columns[i]
+        xx = x_df[k]
+
+        fig.add_trace(
+            go.Scatter(x=xx, y=y, mode="markers", showlegend=False),
+            ro,
+            co,
+        )
+        if trendline and df.schema[k].is_numeric():
+            xy = df.select(k, pl.ones(pl.col(k).len()), target).drop_nulls()
+
+            (slope, b), res, rank, s = np.linalg.lstsq(
+                xy.select(k, "ones").to_numpy(),
+                xy[target].to_numpy(),
+            )
+
+            y_regress = slope * xy[k] + b
+            fig.add_trace(
+                go.Scatter(
+                    x=xy[k],
+                    y=y_regress,
+                    mode="lines",
+                    showlegend=False,
+                    line_color="white",
+                ),
+                ro,
+                co,
+            )
+
+    fig.update_xaxes(visible=False)
+    fig.update_yaxes(visible=False)
+
+    return fig
